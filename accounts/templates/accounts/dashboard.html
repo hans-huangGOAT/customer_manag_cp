@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    {% include 'accounts/status.html' %}
+    <div class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-md-5">
+                <div class="card card-body">
+                    <h4>Customers: </h4>
+
+
+                    <table class="table">
+                        <tr>
+                            <th></th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Phone</th>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="card card-body">
+                    <h4>Last 5 Orders:</h4>
+
+
+                    <table class="table">
+                        <tr>
+                            <th scope="col">Product</th>
+                            <th scope="col">Data Ordered</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Update</th>
+                            <th scope="col">Remove</th>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
