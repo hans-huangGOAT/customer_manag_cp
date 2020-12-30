@@ -6,14 +6,17 @@ from .filters import *
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from .decorators import *
 
 
 # Create your views here.
+
 def logout_page(request):
     logout(request)
     return redirect('login')
 
 
+@unauthenticated_user
 def login_page(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -32,6 +35,7 @@ def login_page(request):
     return render(request, 'accounts/login.html', context)
 
 
+@unauthenticated_user
 def register_page(request):
     form = CreateUserForm()
 
@@ -48,6 +52,7 @@ def register_page(request):
     return render(request, 'accounts/register.html', context)
 
 
+@admin_only
 @login_required(login_url='login')
 def home(request):
     customers = Customer.objects.all()
@@ -67,6 +72,15 @@ def home(request):
 
 
 @login_required(login_url='login')
+def user(request):
+    context = {
+
+    }
+    return render(request, 'accounts/user.html', context)
+
+
+@login_required(login_url='login')
+@allowed_user(allowed_roles=['admin'])
 def customer(request, pk):
     customer = Customer.objects.get(pk=pk)
 
@@ -84,6 +98,7 @@ def customer(request, pk):
     return render(request, 'accounts/customer.html', context)
 
 
+@allowed_user(allowed_roles=['admin'])
 @login_required(login_url='login')
 def create_order(request, pk):
     customer = Customer.objects.get(pk=pk)
@@ -100,6 +115,7 @@ def create_order(request, pk):
     return render(request, 'accounts/create_orders.html', context)
 
 
+@allowed_user(allowed_roles=['admin'])
 @login_required(login_url='login')
 def products(request):
     products = Product.objects.all()
@@ -109,6 +125,7 @@ def products(request):
     return render(request, 'accounts/products.html', context)
 
 
+@allowed_user(allowed_roles=['admin'])
 @login_required(login_url='login')
 def delete_order(request, pk):
     order = Order.objects.get(pk=pk)
@@ -121,6 +138,7 @@ def delete_order(request, pk):
     return render(request, 'accounts/delete_order.html', context)
 
 
+@allowed_user(allowed_roles=['admin'])
 @login_required(login_url='login')
 def update_order(request, pk):
     order = Order.objects.get(pk=pk)
