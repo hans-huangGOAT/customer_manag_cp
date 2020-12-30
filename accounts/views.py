@@ -4,18 +4,51 @@ from .models import *
 from .forms import *
 from .filters import *
 from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
+def logout_page(request):
+    logout(request)
+    return redirect('login')
 
-def login(request):
-    form = CreateUserForm()
+
+def login_page(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.info(request, 'Username OR password is incorrect.')
     context = {
-        'form': form
+
     }
     return render(request, 'accounts/login.html', context)
 
 
+def register_page(request):
+    form = CreateUserForm()
+
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, 'Accoutn was created for ' + username)
+            return redirect('login')
+    context = {
+        'form': form
+    }
+    return render(request, 'accounts/register.html', context)
+
+
+@login_required(login_url='login')
 def home(request):
     customers = Customer.objects.all()
     orders = Order.objects.all().order_by('-date_created')[:5]
@@ -33,6 +66,7 @@ def home(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
+@login_required(login_url='login')
 def customer(request, pk):
     customer = Customer.objects.get(pk=pk)
 
@@ -50,6 +84,7 @@ def customer(request, pk):
     return render(request, 'accounts/customer.html', context)
 
 
+@login_required(login_url='login')
 def create_order(request, pk):
     customer = Customer.objects.get(pk=pk)
     OrdersForm = inlineformset_factory(Customer, Order, fields=('product', 'status'), extra=10)
@@ -65,6 +100,7 @@ def create_order(request, pk):
     return render(request, 'accounts/create_orders.html', context)
 
 
+@login_required(login_url='login')
 def products(request):
     products = Product.objects.all()
     context = {
@@ -73,6 +109,7 @@ def products(request):
     return render(request, 'accounts/products.html', context)
 
 
+@login_required(login_url='login')
 def delete_order(request, pk):
     order = Order.objects.get(pk=pk)
     if request.method == 'POST':
@@ -84,6 +121,7 @@ def delete_order(request, pk):
     return render(request, 'accounts/delete_order.html', context)
 
 
+@login_required(login_url='login')
 def update_order(request, pk):
     order = Order.objects.get(pk=pk)
     form = OrderForm(instance=order)
